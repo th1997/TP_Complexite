@@ -83,7 +83,8 @@ public class Main {
 
             for(int i = 0; i < m; i++){
                 Items.get(i).calcPoid(matrice[i],poids);
-                System.out.println(Items.get(i).poid);
+                double ratio = Math.round(1000.0*((double)(Items.get(i).profit))/((double)Items.get(i).poid))/1000.0;
+                System.out.println("Item " +(i+1) +": poid total : " +Items.get(i).poid +", profit : " +Items.get(i).profit +", ratio : " +ratio);
             }
         }
         catch (IOException e) {
