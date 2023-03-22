@@ -1,95 +1,78 @@
 package com.insa.cdsi;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Main {
+
+    /**
+     *
+    */
+    public static void colonneZero(int[][] matrice1, int posUn){
+        for(int i = 0; i < matrice1.length; i++){
+            matrice1[i][posUn] = 0;
+        }
+    }
+    public static int[][] deleteLine(int rand, int[][] matrice){
+        int[][] matrice2 = new int[matrice.length-1][matrice[0].length];
+
+        for(int i = 0; i < rand ; i++){
+            System.arraycopy(matrice[i], 0, matrice2[i], 0, matrice[0].length);
+        }
+        for(int i = rand+1; i < matrice.length ; i++){
+            System.arraycopy(matrice[i], 0, matrice2[i - 1], 0, matrice[0].length);
+        }
+        return matrice2;
+    }
+
+    /**
+     * Sélectionne les items répondants aux conditions et les affichent.
+     * @param items Liste des Items.
+     * @param knapsack_size Taille maximale du sac.
+     * */
+    public static void selectItems(ArrayList<Item> items, int knapsack_size){
+        int knapsack = 0;
+        int i = items.size()-1;
+        items.sort(Comparator.comparing(s -> s.ratio));
+        while(knapsack + items.get(i).poid < knapsack_size && i >= 0){
+            if(items.get(i).poid != 0){
+                knapsack = knapsack + items.get(i).poid;
+                System.out.println("Item " +items.get(i).ID +": poid total : " +items.get(i).poid +", profit : " +items.get(i).profit +", ratio : " +items.get(i).ratio);
+            }
+            i--;
+        }
+        System.out.println(knapsack_size +" : " +knapsack);
+    }
+
     public static void main(String[] args) throws IOException {
-        // Création d’un fileReader pour lire le fichier
-        FileReader fileReader = new FileReader("SUKP_instances_60\\Instances of Set I\\sukp 85_100_0.10_0.75.txt");
-        // Création d’un bufferedReader qui utilise le fileReader
-        BufferedReader reader = new BufferedReader (fileReader);
-        String line = "", lineTmp;
-        int m,n,knapsack_size;
-        ArrayList<Item> Items = new ArrayList<>();
-        ArrayList<Integer> poids = new ArrayList<>();
-        int[][] matrice;
+        // Mise en place de la structure.
+        FileSUKP file = new FileSUKP();
 
-        try {
-            // On ignore les 2 premieres lignes vide du fichier.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
-            String[] words;
+        int m = file.getM();
+        int n = file.getN();
+        int knapsack_size = file.getKnapsack_size();
+        int[][] matrice = file.getMatrice();
+        ArrayList<Item> Items = file.getItems();
+        ArrayList<Integer> poids = file.getPoids();
+        ArrayList<Double> ratios = new ArrayList<>();
 
-            /***********Récuperation de m, n et de la taille du sac.**********/
-
-            // Remplacer chaque nombre non numérique par un espace
-            lineTmp = line.replaceAll("[^\\d]", " ");
-            // Supprimer les espaces de début et de fin
-            lineTmp = lineTmp.trim();
-            // Remplacer les espaces consécutifs par un seul espace.
-            lineTmp = lineTmp.replaceAll(" +", " ");
-            // Découpage de la ligne avec l'espace comme délimiteur.
-            words = lineTmp.split(" ", 0);
-            // Passage de String a Integer et récuperation des valeurs.
-            m = Integer.parseInt(words[0]);
-            n = Integer.parseInt(words[1]);
-            knapsack_size = Integer.parseInt(words[2]);
-
-            System.out.println("Nombre d'items : " +m +"\nNombre d'elements : " +n +"\nTaille du sac : " +knapsack_size);
-
-            /***********Récuperation du profit des 85 items.**********/
-
-            // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
-
-            // Découpage de la ligne avec l'espace comme délimiteur.
-            words = line.split(" ", 0);
-
-            // Passage de String a Integer et création des Items.
-            for (String s : words) {
-                Items.add(new Item(Integer.parseInt(s)));
-            }
-
-            /***********Récuperation du poids des 100 éléments.**********/
-
-            // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
-
-            // Découpage de la ligne avec l'espace comme délimiteur.
-            words = line.split(" ", 0);
-
-            // Passage de String a Integer et ajouts des poids.
-            for (String s : words) {
-                poids.add(Integer.parseInt(s));
-            }
-
-            /***********Récuperation de la matrice.**********/
-
-            matrice = new int[m][n];
-
-            // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 1; i++){ line = reader.readLine(); }
-
-            for(int i = 0; i < m; i++) {
-                line = reader.readLine();
-                words = line.split(" ", 0);
-
-                for(int j = 0; j < n; j++) {
-                    matrice[i][j] = Integer.parseInt(words[j]);
+        for(int i = 0; i < matrice.length; i++){
+            int rand = (int)(Math.random() * (matrice.length-i));
+            Items.get(rand).calcPoid(matrice[rand],poids);
+            for(int j =0; j < n;j++){
+                if(matrice[rand][j] == 1){
+                    colonneZero(matrice, j);
                 }
             }
+            matrice = deleteLine(rand,matrice);
+        }
 
-            for(int i = 0; i < m; i++){
-                Items.get(i).calcPoid(matrice[i],poids);
-                double ratio = Math.round(1000.0*((double)(Items.get(i).profit))/((double)Items.get(i).poid))/1000.0;
-                System.out.println("Item " +(i+1) +": poid total : " +Items.get(i).poid +", profit : " +Items.get(i).profit +", ratio : " +ratio);
-            }
-        }
-        catch (IOException e) {
-                e.printStackTrace();
-        }
-        reader.close();
+        selectItems(Items,knapsack_size);
+
+        /*System.out.println("*******************************************");
+        for(int i = 0; i < m; i++){
+            System.out.println("Item " +Items.get(i).ID +": poid total : " +Items.get(i).poid +", profit : " +Items.get(i).profit +", ratio : " +Items.get(i).ratio);
+        }*/
     }
 }
