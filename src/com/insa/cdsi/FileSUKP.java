@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class FileSUKP {
-    private int n;
-    private int m;
-    private int knapsack_size;
-    private ArrayList<Item> items;
-    private ArrayList<Integer> poids;
-    private int[][] matrice;
+    private int n; // Nombre d'element
+    private int m; // Nombre d'item
+    private int knapsack_size; // Taille maximale du sac
+    private ArrayList<Item> items; // Liste des Items
+    private ArrayList<Integer> poids; // Liste des poids
+    private int[][] matrice; // Matrice des Relations
 
     public FileSUKP() throws IOException {
         items = new ArrayList<>();
@@ -19,9 +19,12 @@ public class FileSUKP {
         ReadFile();
     }
 
+    /**
+     * Lecture du fichier et assignation des valeurs du fichier dans des variables.
+     */
     public void ReadFile() throws IOException {
         // Création d’un fileReader pour lire le fichier
-        FileReader fileReader = new FileReader("SUKP_instances_60\\Instances of Set I\\sukp 85_100_0.10_0.75.txt");
+        FileReader fileReader = new FileReader("SUKP_instances_60\\Instances of Set I\\sukp 300_285_0.15_0.85.txt");
         // Création d’un bufferedReader qui utilise le fileReader
         BufferedReader reader = new BufferedReader (fileReader);
         String line = "", lineTmp;
@@ -56,9 +59,7 @@ public class FileSUKP {
             words = line.split(" ", 0);
 
             // Passage de String a Integer et création des Items.
-            //for (String s : words) {
             for (int i = 0; i < words.length;i++) {
-                //items.add(new Item(Integer.parseInt(s),i));
                 items.add(new Item(Integer.parseInt(words[i]),i));
             }
 
@@ -107,10 +108,6 @@ public class FileSUKP {
 
     public ArrayList<Item> getItems() {
         return items;
-    }
-
-    public Item getItems(int n) {
-        return items.get(n);
     }
 
     public ArrayList<Integer> getPoids() {

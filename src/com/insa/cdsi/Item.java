@@ -15,6 +15,11 @@ public class Item {
         this.ID = ID;
     }
 
+    /**
+     * Calcul le poid d'un Item ainsi que le ratio profit/poid.
+     * @param mat Ligne a calculer le poid.
+     * @param poids Liste des poids.
+     */
     public void calcPoid(int[] mat, ArrayList<Integer> poids){
         for(int i = 0; i < mat.length; i++){
             if(mat[i]== 1){
@@ -22,5 +27,15 @@ public class Item {
             }
         }
         ratio = (((double)(profit)) / ((double)(poid)));
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "ID=" + ID +
+                ", profit=" + profit +
+                ", poid=" + poid +
+                ", ratio=" + ratio +
+                '}';
     }
 }

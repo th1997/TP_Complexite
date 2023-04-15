@@ -3,17 +3,29 @@ package com.insa.cdsi;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 
 public class Main {
 
     /**
-     *
-    */
-    public static void colonneZero(int[][] matrice1, int posUn){
-        for(int i = 0; i < matrice1.length; i++){
-            matrice1[i][posUn] = 0;
+     * Permet de mettre une colonne entière à 0 en fonction de l'indice donné.
+     * @param matrice Matrice à modifier.
+     * @param posUn Indice de la colonne à supprimer.
+     * @return La matrice modifiée.
+     **/
+    public static int[][] colonneZero(int[][] matrice, int posUn){
+        for(int i = 0; i < matrice.length; i++){
+            matrice[i][posUn] = 0;
         }
+        return matrice;
     }
+
+    /**
+     * Permet de supprimer une ligne d'une matrice en fonction de l'indice donné.
+     * @param matrice Matrice à modifier.
+     * @param rand Indice de la ligne à supprimer.
+     * @return La matrice modifiée.
+     **/
     public static int[][] deleteLine(int rand, int[][] matrice){
         int[][] matrice2 = new int[matrice.length-1][matrice[0].length];
 
@@ -30,49 +42,74 @@ public class Main {
      * Sélectionne les items répondants aux conditions et les affichent.
      * @param items Liste des Items.
      * @param knapsack_size Taille maximale du sac.
-     * */
-    public static void selectItems(ArrayList<Item> items, int knapsack_size){
+     **/
+    public static HashMap<Integer,ArrayList<Item>> selectItems(ArrayList<Item> items, int knapsack_size, HashMap<Integer,ArrayList<Item>> listItem, int nb){
         int knapsack = 0;
-        int i = items.size()-1;
+        int i        = items.size()-1;
+        int profitTotal = 0;
+        double ratioTotal;
+        ArrayList<Item> listItem2 = new ArrayList<>();
+
+        // On trie les items en fonction du ratio.
         items.sort(Comparator.comparing(s -> s.ratio));
+       /* for(Item in : items){
+            System.out.println(in.ID +" " +in.ratio);
+        }*/
+        //Tant que la taille de notre sac est inferieur à la capacité maximale, on boucle et que i est positif.
         while(knapsack + items.get(i).poid < knapsack_size && i >= 0){
+            //On vérifie si le poid est différent de 0.
             if(items.get(i).poid != 0){
-                knapsack = knapsack + items.get(i).poid;
-                System.out.println("Item " +items.get(i).ID +": poid total : " +items.get(i).poid +", profit : " +items.get(i).profit +", ratio : " +items.get(i).ratio);
+                knapsack = knapsack + items.get(i).poid; // On ajoute le poid de l'item i dans le sac.
+                profitTotal = profitTotal + items.get(i).profit; // On cumule les profits.
+                listItem2.add(items.get(i));
+                System.out.println("Items : " +items.get(i).ID +" taille sac : " +knapsack);
+                //System.out.println("Item " +items.get(i).ID +": poid total : " +items.get(i).poid +", profit : " +items.get(i).profit +", ratio : " +items.get(i).ratio +" ");
             }
             i--;
         }
-        System.out.println(knapsack_size +" : " +knapsack);
+        ratioTotal = (double) profitTotal/knapsack;
+        listItem.put(nb,listItem2);
+        //System.out.println(ratioTotal);
+        System.out.println("taille liste " +listItem.size());
+        System.out.println("poid total : " +knapsack +" profit total : " +profitTotal +" liste d'Items : " +listItem.get(nb) +" ratio total 2 : " +ratioTotal);
+        return listItem;
     }
 
     public static void main(String[] args) throws IOException {
-        // Mise en place de la structure.
+        int nb = 0;
+        HashMap<Integer, ArrayList<Item>> listItem = new HashMap<>();
+
+        while (nb < 10) {
+
+            // Mise en place de la structure.
         FileSUKP file = new FileSUKP();
 
-        int m = file.getM();
-        int n = file.getN();
-        int knapsack_size = file.getKnapsack_size();
-        int[][] matrice = file.getMatrice();
-        ArrayList<Item> Items = file.getItems();
-        ArrayList<Integer> poids = file.getPoids();
-        ArrayList<Double> ratios = new ArrayList<>();
+        int     m             = file.getM();
+        int     n             = file.getN();
+        int     knapsack_size = file.getKnapsack_size();
 
-        for(int i = 0; i < matrice.length; i++){
-            int rand = (int)(Math.random() * (matrice.length-i));
-            Items.get(rand).calcPoid(matrice[rand],poids);
-            for(int j =0; j < n;j++){
-                if(matrice[rand][j] == 1){
-                    colonneZero(matrice, j);
+            int[][] matrice = file.getMatrice().clone();
+            ArrayList<Item> Items = file.getItems();
+            ArrayList<Integer> poids = file.getPoids();
+
+            for (int i = 0; i < m; i++) {
+                int rand = (int) (Math.random() * (m - i));
+                //Calcul du poid de l'Item à la position rand.
+                Items.get(rand).calcPoid(matrice[rand], poids);
+
+                for (int j = 0; j < n; j++) {
+                    //Si on trouve un 1 dans la ligne on met la colonne à 0.
+                    if (matrice[rand][j] == 1) {
+                        matrice = colonneZero(matrice, j);
+                    }
                 }
+                deleteLine(rand, matrice);
             }
-            matrice = deleteLine(rand,matrice);
+            for(Item in : Items){
+                System.out.println(in.ratio);
+            }
+            listItem = selectItems(Items, knapsack_size, listItem, nb);
+            nb++;
         }
-
-        selectItems(Items,knapsack_size);
-
-        /*System.out.println("*******************************************");
-        for(int i = 0; i < m; i++){
-            System.out.println("Item " +Items.get(i).ID +": poid total : " +Items.get(i).poid +", profit : " +Items.get(i).profit +", ratio : " +Items.get(i).ratio);
-        }*/
     }
 }
