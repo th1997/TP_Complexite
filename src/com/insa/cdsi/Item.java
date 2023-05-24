@@ -21,12 +21,20 @@ public class Item {
      * @param poids Liste des poids.
      */
     public void calcPoid(int[] mat, ArrayList<Integer> poids){
+        int totalPoid = 0;
+
         for(int i = 0; i < mat.length; i++){
             if(mat[i]== 1){
-                poid = poid + poids.get(i);
+                totalPoid += poids.get(i);
             }
         }
-        ratio = (((double)(profit)) / ((double)(poid)));
+        this.poid = totalPoid;
+
+        if(poid != 0){
+            ratio = (double) (profit) / poid;
+        } else{
+            ratio = 0;
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@ public class FileSUKP {
     private int n; // Nombre d'element
     private int m; // Nombre d'item
     private int knapsack_size; // Taille maximale du sac
-    private ArrayList<Item> items; // Liste des Items
+    private ArrayList<Item> items; // Liste des profits des Items
     private ArrayList<Integer> poids; // Liste des poids
     private int[][] matrice; // Matrice des Relations
 
@@ -24,24 +24,24 @@ public class FileSUKP {
      */
     public void ReadFile() throws IOException {
         // Création d’un fileReader pour lire le fichier
-        FileReader fileReader = new FileReader("SUKP_instances_60\\Instances of Set I\\sukp 300_285_0.15_0.85.txt");
+        FileReader fileReader = new FileReader("SUKP_instances_60\\Instances of Set II\\sukp_1000_1000_0.15_0.85.txt");
         // Création d’un bufferedReader qui utilise le fileReader
         BufferedReader reader = new BufferedReader (fileReader);
         String line = "", lineTmp;
+        String[] words;
 
         try{
-            // On ignore les 2 premieres lignes vide du fichier.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
-            String[] words;
+            // On ignore les 2 premieres lignes vide du fichier et on récupère les informations de la troisième.
+            reader.readLine();
+            reader.readLine();
+            line = reader.readLine();
 
             /***********Récuperation de m, n et de la taille du sac.**********/
 
             // Remplacer chaque nombre non numérique par un espace
             lineTmp = line.replaceAll("[^\\d]", " ");
-            // Supprimer les espaces de début et de fin
-            lineTmp = lineTmp.trim();
-            // Remplacer les espaces consécutifs par un seul espace.
-            lineTmp = lineTmp.replaceAll(" +", " ");
+            // Supprimer les espaces de début et de fin et remplace les espaces consécutifs par un seul espace.
+            lineTmp = lineTmp.trim().replaceAll(" +", " ");
             // Découpage de la ligne avec l'espace comme délimiteur.
             words = lineTmp.split(" ", 0);
             // Passage de String a Integer et récuperation des valeurs.
@@ -53,7 +53,9 @@ public class FileSUKP {
             /***********Récuperation du profit des 85 items.**********/
 
             // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
+            reader.readLine();
+            reader.readLine();
+            line = reader.readLine();
 
             // Découpage de la ligne avec l'espace comme délimiteur.
             words = line.split(" ", 0);
@@ -66,7 +68,9 @@ public class FileSUKP {
             /***********Récuperation du poids des 100 éléments.**********/
 
             // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 2; i++){ line = reader.readLine(); }
+            reader.readLine();
+            reader.readLine();
+            line = reader.readLine();
 
             // Découpage de la ligne avec l'espace comme délimiteur.
             words = line.split(" ", 0);
@@ -79,7 +83,8 @@ public class FileSUKP {
             /***********Récuperation de la matrice.**********/
 
             // On ignore les 2 lignes suivantes qui ne sont pas à utiliser.
-            for(int i = 0; i <= 1; i++){ line = reader.readLine(); }
+            reader.readLine();
+            reader.readLine();
 
             for(int i = 0; i < m; i++) {
                 line = reader.readLine();
@@ -92,6 +97,7 @@ public class FileSUKP {
         } catch(IOException e){
             e.printStackTrace();
         }
+        reader.close();
     }
 
     public int getN() {

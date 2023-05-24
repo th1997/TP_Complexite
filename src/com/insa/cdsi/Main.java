@@ -42,37 +42,58 @@ public class Main {
      * Sélectionne les items répondants aux conditions et les affichent.
      * @param items Liste des Items.
      * @param knapsack_size Taille maximale du sac.
+     * @param listItem List des Items a garder dans le sac.
+     * @param nb ID (numéro) de l'Item.
      **/
     public static HashMap<Integer,ArrayList<Item>> selectItems(ArrayList<Item> items, int knapsack_size, HashMap<Integer,ArrayList<Item>> listItem, int nb){
         int knapsack = 0;
         int i        = items.size()-1;
         int profitTotal = 0;
-        double ratioTotal;
         ArrayList<Item> listItem2 = new ArrayList<>();
 
         // On trie les items en fonction du ratio.
         items.sort(Comparator.comparing(s -> s.ratio));
-       /* for(Item in : items){
-            System.out.println(in.ID +" " +in.ratio);
-        }*/
+
         //Tant que la taille de notre sac est inferieur à la capacité maximale, on boucle et que i est positif.
-        while(knapsack + items.get(i).poid < knapsack_size && i >= 0){
+        while( i >= 0 && knapsack + items.get(i).poid < knapsack_size){
             //On vérifie si le poid est différent de 0.
             if(items.get(i).poid != 0){
                 knapsack = knapsack + items.get(i).poid; // On ajoute le poid de l'item i dans le sac.
                 profitTotal = profitTotal + items.get(i).profit; // On cumule les profits.
                 listItem2.add(items.get(i));
-                System.out.println("Items : " +items.get(i).ID +" taille sac : " +knapsack);
-                //System.out.println("Item " +items.get(i).ID +": poid total : " +items.get(i).poid +", profit : " +items.get(i).profit +", ratio : " +items.get(i).ratio +" ");
             }
             i--;
         }
-        ratioTotal = (double) profitTotal/knapsack;
         listItem.put(nb,listItem2);
-        //System.out.println(ratioTotal);
-        System.out.println("taille liste " +listItem.size());
-        System.out.println("poid total : " +knapsack +" profit total : " +profitTotal +" liste d'Items : " +listItem.get(nb) +" ratio total 2 : " +ratioTotal);
         return listItem;
+    }
+
+    /**
+     * Fonction permettant de trouver le résultat le plus optimisé
+     * @param listItem Liste de tout les Items
+     * @param nb Nombre de lancé
+     * @return Le numéro du lancé ayant le plus faible ratio
+     */
+    public static int getMostOptimised(HashMap<Integer, ArrayList<Item>> listItem, int nb) {
+        double ratioTotal[][] = new double[nb][2];
+        double ratioMin;
+        int numRatioMin = 0;
+
+        for (int i = 0; i < nb; i++) {
+            ratioTotal[i][1] = i;
+            for (int j = 0; j < listItem.get(i).size(); j++) {
+                ratioTotal[i][0] = ratioTotal[i][0] + listItem.get(i).get(j).ratio;
+            }
+        }
+        ratioMin = ratioTotal[0][0];
+
+        for (int i = 1; i < nb; i++) {
+            if (ratioMin > ratioTotal[i][0]) {
+                ratioMin = ratioTotal[i][0];
+                numRatioMin = i;
+            }
+        }
+        return numRatioMin;
     }
 
     public static void main(String[] args) throws IOException {
@@ -105,11 +126,12 @@ public class Main {
                 }
                 deleteLine(rand, matrice);
             }
-            for(Item in : Items){
-                System.out.println(in.ratio);
-            }
             listItem = selectItems(Items, knapsack_size, listItem, nb);
             nb++;
         }
+        for(int i = 0; i < 10; i++){
+            System.out.println("Resultat du lance " +(i+1) +": " +listItem.get(i));
+        }
+        System.out.println("\nLe lance le plus optimise est le suivant : "+listItem.get(getMostOptimised(listItem,nb)));
     }
 }
